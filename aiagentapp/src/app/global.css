@@ -1,0 +1,13 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  --black: #1c2024;
+  --primary: #6340d9;
+  --primary-light: #e0e0f3;
+  --black-dim: #9696ad;
+  --colorbg: #f9f9fb;
+  --black-dim-dark: #70747d;
+  --line: #e5e5ea;
+  font-family: var(--font-inter);
+}

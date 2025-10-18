@@ -1,0 +1,76 @@
+.variation-item {
+  max-width: 470px;
+}
+
+.variation-text {
+  font-size: 14px;
+  color: var(--black);
+}
+
+.variation-bottom-cont {
+  height: 180px;
+  background-color: white;
+  border: 1px solid var(--line);
+  padding: 15px;
+  border-radius: 13px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+  overflow-y: auto;
+}
+
+.variation-metric-label {
+  font-size: 14px;
+  color: var(--black-dim-dark);
+  font-weight: 600;
+}
+
+.variation-metric-value {
+  font-size: 14px;
+  color: var(--black-dim-dark);
+}
+
+.variation-metric {
+  display: flex;
+  width: fit-content;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px solid var(--line);
+  padding: 6px 10px;
+  border-radius: 7px;
+}
+
+.variation-metric-cont {
+  display: flex;
+  gap: 8px;
+}
+
+.variation-top-head {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+  background-color: var(--primary-light);
+  width: fit-content;
+  padding: 5px 10px;
+  border-radius: 7px;
+}
+
+.variation-top-metric-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--black);
+}
+
+.variation-top-metric {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.variation-top-cont {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

@@ -1,0 +1,6 @@
+.nav-container {
+  height: 57px;
+  padding: 16px;
+  background-color: var(--colorbg);
+  border-bottom: 1px solid var(--line);
+}
