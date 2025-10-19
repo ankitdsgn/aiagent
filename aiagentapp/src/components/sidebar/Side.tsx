@@ -1,5 +1,6 @@
 "use client";
 
+import api from "@/lib/axios";
 import styles from "./Side.module.css";
 import { Input, Button, Slider, Skeleton } from "antd";
 import { useEffect, useState } from "react";
@@ -11,6 +12,7 @@ import {
   useTransform,
 } from "framer-motion";
 import type { Variants, TargetAndTransition } from "framer-motion";
+import { useAIStore } from "@/app/stores/aistores";
 
 /* ---------- Slider skeleton shape ---------- */
 function SliderSkeleton() {
@@ -61,9 +63,10 @@ const sectionVariants: Variants = {
 };
 
 export default function Side() {
+  const setStoreVariations = useAIStore((s) => s.setVariations);
+
   const [temperature, setTemperature] = useState(0.7);
   const [topP, setTopP] = useState(0.9);
-  const [coherence, setCoherence] = useState(0.5);
   const [textAreaValue, setTextAreaValue] = useState("");
 
   // Initial "page load" skeleton state
@@ -76,12 +79,29 @@ export default function Side() {
     return () => clearTimeout(t);
   }, []);
 
+  const [inputToggle, setInputToggle] = useState(false);
+
   const handleCreate = async () => {
     if (!textAreaValue) return;
     setWorking(true);
     try {
-      // simulate async work
-      await new Promise((r) => setTimeout(r, 1400));
+      const response = await api.post("/api/llm-chatgpt", {
+        input_toggle: inputToggle,
+        prompt: textAreaValue,
+        temperature,
+        top_p: topP,
+      });
+      console.log("API response:", response.data);
+
+      const next = Array.isArray(response?.data?.variations?.variations)
+        ? response.data.variations.variations
+        : [];
+      setStoreVariations(next);
+    } catch (error) {
+      console.error("API error:", error);
+      setTextAreaValue("");
+      setTemperature(0.7);
+      setTopP(0.9);
     } finally {
       setWorking(false);
     }
@@ -146,6 +166,7 @@ export default function Side() {
               value={textAreaValue}
               onChange={(e) => setTextAreaValue(e.target.value)}
               disabled={working}
+              maxLength={300}
             />
           </motion.div>
         )}
@@ -352,84 +373,6 @@ export default function Side() {
                 step={0.01}
                 value={topP}
                 onChange={setTopP}
-                disabled={working}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
-
-      {/* -------- Coherence -------- */}
-      <motion.p
-        className={styles["side-config-item-head"]}
-        variants={sectionVariants}
-        custom={9}
-      >
-        Coherence
-      </motion.p>
-      <motion.p
-        className={styles["side-config-item-sub"]}
-        variants={sectionVariants}
-        custom={10}
-      >
-        Measures how logically consistent and on-topic a response is, higher
-        values mean more focused.
-      </motion.p>
-
-      <motion.div
-        className={styles["side-config-slider-cont"]}
-        variants={sectionVariants}
-        custom={11}
-      >
-        <div className={styles["side-config-slider-labels"]}>
-          <p className={styles["side-config-slider-label"]}>Range</p>
-          <div className={styles["side-config-slider-label"]}>
-            <AnimatePresence mode="wait">
-              {initialLoading ? (
-                <motion.div
-                  key="c-skel"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
-                  <Skeleton.Input size="small" style={{ width: 48 }} active />
-                </motion.div>
-              ) : (
-                <motion.span
-                  key="c-val"
-                  initial={{ opacity: 0, y: 2 }}
-                  animate={{ opacity: 1, y: 0 }}
-                >
-                  <NumberTicker value={coherence} />
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-
-        <AnimatePresence mode="wait">
-          {initialLoading ? (
-            <motion.div
-              key="c-slider-skel"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <SliderSkeleton />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="c-slider"
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <Slider
-                min={0}
-                max={1}
-                step={0.01}
-                value={coherence}
-                onChange={setCoherence}
                 disabled={working}
               />
             </motion.div>
