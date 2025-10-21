@@ -1,9 +1,10 @@
 "use client";
 
 import api from "@/lib/axios";
+import "@ant-design/v5-patch-for-react-19";
 import styles from "./Side.module.css";
-import { Input, Button, Slider, Skeleton } from "antd";
-import { useEffect, useState } from "react";
+import { Input, Button, Slider, Skeleton, Switch } from "antd";
+import { useEffect, useMemo, useState } from "react";
 import {
   motion,
   AnimatePresence,
@@ -14,7 +15,6 @@ import {
 import type { Variants, TargetAndTransition } from "framer-motion";
 import { useAIStore } from "@/app/stores/aistores";
 
-/* ---------- Slider skeleton shape ---------- */
 function SliderSkeleton() {
   return (
     <Skeleton.Node
@@ -24,7 +24,7 @@ function SliderSkeleton() {
   );
 }
 
-/* ---------- Animated number (spring) ---------- */
+/* ---------- Animated number (hydration-safe) ---------- */
 function NumberTicker({
   value,
   fractionDigits = 2,
@@ -32,6 +32,11 @@ function NumberTicker({
   value: number;
   fractionDigits?: number;
 }) {
+  // Render a static formatted value on the server/first paint,
+  // then animate once mounted to avoid text-content mismatches.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   const mv = useMotionValue(value);
   const spring = useSpring(mv, { stiffness: 260, damping: 30, mass: 0.9 });
   const rounded = useTransform(spring, (v) => v.toFixed(fractionDigits));
@@ -40,7 +45,13 @@ function NumberTicker({
     mv.set(value);
   }, [value, mv]);
 
-  return <motion.span>{rounded}</motion.span>;
+  // During SSR / before mount, output a stable string.
+  const initialText = useMemo(
+    () => value.toFixed(fractionDigits),
+    [value, fractionDigits]
+  );
+
+  return <motion.span>{mounted ? rounded : initialText}</motion.span>;
 }
 
 /* ---------- Motion variants (typed) ---------- */
@@ -84,6 +95,7 @@ export default function Side() {
   const handleCreate = async () => {
     if (!textAreaValue) return;
     setWorking(true);
+
     try {
       const response = await api.post("/api/llm-chatgpt", {
         input_toggle: inputToggle,
@@ -91,7 +103,6 @@ export default function Side() {
         temperature,
         top_p: topP,
       });
-      console.log("API response:", response.data);
 
       const next = Array.isArray(response?.data?.variations?.variations)
         ? response.data.variations.variations
@@ -210,8 +221,8 @@ export default function Side() {
         )}
       </AnimatePresence>
 
-      {/* Configuration header */}
-      <motion.p
+      {/* Configuration header (block container, legal nesting) */}
+      <motion.div
         className={[
           styles["side-system-ins"],
           styles["side-system-ins-2"],
@@ -219,8 +230,16 @@ export default function Side() {
         variants={sectionVariants}
         custom={2}
       >
-        AI CONFIGURATION
-      </motion.p>
+        <p>AI CONFIGURATION</p>
+        <div className={styles["side-switch-cont"]}>
+          <Switch
+            checked={inputToggle}
+            onChange={(checked) => setInputToggle(checked)}
+            disabled={working}
+            size="small"
+          />
+        </div>
+      </motion.div>
 
       {/* -------- Temperature -------- */}
       <motion.p
@@ -294,8 +313,8 @@ export default function Side() {
                 max={1}
                 step={0.01}
                 value={temperature}
-                onChange={setTemperature}
-                disabled={working}
+                onChange={(v) => setTemperature(v as number)}
+                disabled={!inputToggle || working}
               />
             </motion.div>
           )}
@@ -372,8 +391,8 @@ export default function Side() {
                 max={1}
                 step={0.01}
                 value={topP}
-                onChange={setTopP}
-                disabled={working}
+                onChange={(v) => setTopP(v as number)}
+                disabled={!inputToggle || working}
               />
             </motion.div>
           )}

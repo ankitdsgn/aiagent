@@ -1,5 +1,6 @@
 .variation-item {
   max-width: 450px;
+  min-width: 450px;
 }
 
 .variation-text {

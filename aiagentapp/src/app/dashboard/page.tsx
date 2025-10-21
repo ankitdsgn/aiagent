@@ -7,6 +7,7 @@ import VariationItem, {
   Variation,
 } from "@/components/variation_item/VariationItem";
 import { useAIStore } from "@/app/stores/aistores";
+import { Empty } from "antd";
 
 export default function Page() {
   const variations = useAIStore((s) => s.variations) as Variation[]; // or type your store to Variation[]
@@ -21,9 +22,10 @@ export default function Page() {
             className={`${styles["variations-cont-temp"]} ${styles["variations-cont-temp-cmn"]}`}
           >
             {variations.length === 0 ? (
-              <p className="text-gray-500">
-                No variations yet. Create some in the sidebar!
-              </p>
+              <Empty
+                description="No variations generated yet."
+                className={styles["empty-state"]}
+              />
             ) : (
               variations.map((v, i) => <VariationItem key={i} output={v} />)
             )}

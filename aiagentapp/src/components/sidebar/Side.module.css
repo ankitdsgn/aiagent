@@ -12,6 +12,10 @@
   color: var(--black-dim);
   border-bottom: 1px solid var(--line);
   padding-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
 }
 
 .side-label {
