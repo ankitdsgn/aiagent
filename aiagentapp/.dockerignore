@@ -1,0 +1,17 @@
+# dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+pnpm-lock.yaml.save
+
+# build output
+.next
+out
+dist
+
+# misc
+.git
+.env
+.env.*
+Dockerfile*
+docker-compose*

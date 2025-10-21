@@ -1,0 +1,20 @@
+ARG NODE_VERSION=20.11.1
+FROM node:${NODE_VERSION}-alpine
+WORKDIR /app
+
+# Install dependencies first for better caching
+COPY package.json package-lock.json* ./
+RUN npm ci
+
+# Copy source
+COPY . .
+
+ENV NODE_ENV=development
+ENV PORT=3000
+EXPOSE 3000
+
+# For Next.js fast refresh in Docker (Linux host), set:
+#   CHOKIDAR_USEPOLLING=true
+ENV CHOKIDAR_USEPOLLING=true
+
+CMD ["npm", "run", "dev"]
