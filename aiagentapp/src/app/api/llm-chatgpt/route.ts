@@ -9,6 +9,11 @@ export async function POST(req: Request) {
     top_p,
   } = await req.json();
 
+  const cleanedPrompt = prompt
+    .replace(/\s*\n\s*/g, " ") // Replace line breaks with single space
+    .replace(/\s+/g, " ") // Collapse multiple spaces
+    .trim();
+
   const apiKey = process.env.CHAT_GPT_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
@@ -43,7 +48,7 @@ RULES:
 8. Make each variation length random.
 
 User prompt:
-${prompt}
+${cleanedPrompt}
 `;
 
     metaPromptBody = {
@@ -73,7 +78,7 @@ RULES:
 6. Make each variation length random.
 
 User prompt:
-${prompt}
+${cleanedPrompt}
 `;
 
     metaPromptBody = {
